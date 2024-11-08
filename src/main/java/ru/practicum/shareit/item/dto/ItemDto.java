@@ -8,6 +8,7 @@ import lombok.Getter;
 @Getter
 @Builder
 public class ItemDto {
+    private Integer id;
     @NotBlank
     private String name;
     @NotBlank
