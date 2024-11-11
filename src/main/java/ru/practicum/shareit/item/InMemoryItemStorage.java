@@ -44,11 +44,11 @@ public class InMemoryItemStorage implements ItemStorage {
 
     @Override
     public List<Item> getItemByNameOrDescription(String text) {
-        return itemStorage.values().stream()
+        return new ArrayList<>(itemStorage.values().stream()
                 .filter(item -> (item.getName().toLowerCase().contains(text.toLowerCase()) ||
                         item.getDescription().toLowerCase().contains(text.toLowerCase())) &&
                         item.getAvailable())
-                .toList();
+                .toList());
     }
 
     private int generateId() {

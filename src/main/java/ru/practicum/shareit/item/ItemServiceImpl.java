@@ -2,6 +2,7 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exceptions.AuthorizationException;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserStorage;
@@ -26,7 +27,7 @@ public class ItemServiceImpl implements ItemService {
     public Item updateItem(Item item, Integer itemId) {
         Item oldItem = getItemById(itemId);
         if (!Objects.equals(oldItem.getOwnerId(), item.getOwnerId())) {
-            throw new NotFoundException("некорректный userId");
+            throw new AuthorizationException("Нельзя обновить информацию о предмете другого пользователя");
         }
         if (item.getName() != null) {
             oldItem.setName(item.getName());
@@ -47,6 +48,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<Item> getItemsOfUser(Integer userId) {
+        userStorage.getUserById(userId);
         return itemStorage.getItemsOfUser(userId);
     }
 

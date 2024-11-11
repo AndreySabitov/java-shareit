@@ -12,9 +12,6 @@ import lombok.Setter;
 @Builder
 public class User {
     private Integer id;
-    @NotBlank
     private String name;
-    @NotNull(message = "email должен быть задан")
-    @Email(message = "Неверный формат email")
     private String email;
 }
