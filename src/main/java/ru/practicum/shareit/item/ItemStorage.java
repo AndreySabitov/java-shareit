@@ -7,7 +7,7 @@ import java.util.List;
 public interface ItemStorage {
     Item addItem(Item item);
 
-    Item updateItem(Item item, Integer itemId);
+    Item updateItem(Item item);
 
     Item getItemById(Integer itemId);
 

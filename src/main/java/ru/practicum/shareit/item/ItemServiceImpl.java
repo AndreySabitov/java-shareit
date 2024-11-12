@@ -3,6 +3,8 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exceptions.AuthorizationException;
+import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserStorage;
 
@@ -17,46 +19,47 @@ public class ItemServiceImpl implements ItemService {
     private final UserStorage userStorage;
 
     @Override
-    public Item addItem(Item item) {
-        userStorage.getUserById(item.getOwnerId());
-        return itemStorage.addItem(item);
+    public ItemDto addItem(ItemDto itemDto, Integer userId) {
+        userStorage.getUserById(userId);
+        return ItemMapper.mapItemToItemDto(itemStorage.addItem(ItemMapper.mapItemDtoToItem(itemDto, userId)));
     }
 
     @Override
-    public Item updateItem(Item item, Integer itemId) {
-        Item oldItem = getItemById(itemId);
-        if (!Objects.equals(oldItem.getOwnerId(), item.getOwnerId())) {
+    public ItemDto updateItem(ItemDto itemDto, Integer userId, Integer itemId) {
+        userStorage.getUserById(userId);
+        Item oldItem = itemStorage.getItemById(itemId);
+        if (!Objects.equals(oldItem.getOwnerId(), userId)) {
             throw new AuthorizationException("Нельзя обновить информацию о предмете другого пользователя");
         }
-        if (item.getName() != null) {
-            oldItem.setName(item.getName());
+        if (itemDto.getName() != null) {
+            oldItem.setName(itemDto.getName());
         }
-        if (item.getDescription() != null) {
-            oldItem.setDescription(item.getDescription());
+        if (itemDto.getDescription() != null) {
+            oldItem.setDescription(itemDto.getDescription());
         }
-        if (item.getAvailable() != null) {
-            oldItem.setAvailable(item.getAvailable());
+        if (itemDto.getAvailable() != null) {
+            oldItem.setAvailable(itemDto.getAvailable());
         }
-        return itemStorage.updateItem(oldItem, itemId);
+        return ItemMapper.mapItemToItemDto(itemStorage.updateItem(oldItem));
     }
 
     @Override
-    public Item getItemById(Integer itemId) {
-        return itemStorage.getItemById(itemId);
+    public ItemDto getItemById(Integer itemId) {
+        return ItemMapper.mapItemToItemDto(itemStorage.getItemById(itemId));
     }
 
     @Override
-    public List<Item> getItemsOfUser(Integer userId) {
+    public List<ItemDto> getItemsOfUser(Integer userId) {
         userStorage.getUserById(userId);
-        return itemStorage.getItemsOfUser(userId);
+        return itemStorage.getItemsOfUser(userId).stream().map(ItemMapper::mapItemToItemDto).toList();
     }
 
     @Override
-    public List<Item> getItemByNameOrDescription(String text) {
+    public List<ItemDto> getItemByNameOrDescription(String text) {
         if (text.isBlank()) {
             return new ArrayList<>();
         } else {
-            return itemStorage.getItemByNameOrDescription(text);
+            return itemStorage.getItemByNameOrDescription(text).stream().map(ItemMapper::mapItemToItemDto).toList();
         }
     }
 }

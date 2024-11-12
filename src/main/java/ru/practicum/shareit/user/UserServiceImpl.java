@@ -3,6 +3,9 @@ package ru.practicum.shareit.user;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exceptions.DuplicateException;
+import ru.practicum.shareit.user.dto.UpdateUserDto;
+import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.mapper.UserMapper;
 
 @Service
 @RequiredArgsConstructor
@@ -10,19 +13,21 @@ public class UserServiceImpl implements UserService {
     private final UserStorage userStorage;
 
     @Override
-    public User getUserById(Integer userId) {
-        return userStorage.getUserById(userId);
+    public UserDto getUserById(Integer userId) {
+        return UserMapper.mapUserToUserDto(userStorage.getUserById(userId));
     }
 
     @Override
-    public User createUser(User user) {
+    public UserDto createUser(UserDto userDto) {
+        User user = UserMapper.mapUserDtoToUser(userDto);
         validateUser(user);
-        return userStorage.createUser(user);
+        return UserMapper.mapUserToUserDto(userStorage.createUser(user));
     }
 
     @Override
-    public User updateUser(User user, Integer userId) {
-        User oldUser = getUserById(userId);
+    public UserDto updateUser(UpdateUserDto userDto, Integer userId) {
+        User oldUser = userStorage.getUserById(userId);
+        User user = UserMapper.mapUpdateUserDtoToUser(userDto);
         validateUser(user);
         if (user.getName() != null) {
             oldUser.setName(user.getName());
@@ -30,17 +35,20 @@ public class UserServiceImpl implements UserService {
         if (user.getEmail() != null) {
             oldUser.setEmail(user.getEmail());
         }
-        return userStorage.updateUser(oldUser, userId);
+        return UserMapper.mapUserToUserDto(userStorage.updateUser(oldUser));
     }
 
     @Override
-    public User deleteUserById(Integer userId) {
-        return userStorage.deleteUserById(userId);
+    public void deleteUserById(Integer userId) {
+        userStorage.getUserById(userId);
+        userStorage.deleteUserById(userId);
     }
 
     private void validateUser(User user) {
-        if (userStorage.getUsers().stream().anyMatch(user1 -> user1.getEmail().equals(user.getEmail()))) {
-            throw new DuplicateException("Такой email уже существует");
+        if (user.getEmail() != null) {
+            if (userStorage.getUsers().stream().anyMatch(user1 -> user1.getEmail().equals(user.getEmail()))) {
+                throw new DuplicateException("Такой email уже существует");
+            }
         }
     }
 }

@@ -11,7 +11,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class InMemoryItemStorage implements ItemStorage {
     private final Map<Integer, Item> itemStorage = new HashMap<>();
-    int count = 0;
+    private int count = 0;
 
     @Override
     public Item addItem(Item item) {
@@ -22,8 +22,8 @@ public class InMemoryItemStorage implements ItemStorage {
     }
 
     @Override
-    public Item updateItem(Item item, Integer itemId) {
-        return itemStorage.replace(itemId, item);
+    public Item updateItem(Item item) {
+        return itemStorage.replace(item.getId(), item);
     }
 
     @Override

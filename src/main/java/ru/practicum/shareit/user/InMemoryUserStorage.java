@@ -39,16 +39,13 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User updateUser(User user, Integer userId) {
-        userStorage.replace(userId, user);
-        return user;
+    public User updateUser(User user) {
+        return userStorage.replace(user.getId(), user);
     }
 
     @Override
-    public User deleteUserById(Integer userId) {
-        User user = getUserById(userId);
+    public void deleteUserById(Integer userId) {
         userStorage.remove(userId);
-        return user;
     }
 
     private Integer generateId() {
