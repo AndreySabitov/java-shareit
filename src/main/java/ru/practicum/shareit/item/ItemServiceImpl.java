@@ -2,10 +2,13 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exceptions.AuthorizationException;
+import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserStorage;
 
 import java.util.ArrayList;
@@ -14,21 +17,24 @@ import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ItemServiceImpl implements ItemService {
     private final ItemStorage itemStorage;
     private final UserStorage userStorage;
 
     @Override
+    @Transactional
     public ItemDto addItem(ItemDto itemDto, Integer userId) {
-        userStorage.getUserById(userId);
-        return ItemMapper.mapItemToItemDto(itemStorage.addItem(ItemMapper.mapItemDtoToItem(itemDto, userId)));
+        User user = userStorage.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
+        return ItemMapper.mapItemToItemDto(itemStorage.save(ItemMapper.mapItemDtoToItem(itemDto, user)));
     }
 
     @Override
+    @Transactional
     public ItemDto updateItem(ItemDto itemDto, Integer userId, Integer itemId) {
-        userStorage.getUserById(userId);
-        Item oldItem = itemStorage.getItemById(itemId);
-        if (!Objects.equals(oldItem.getOwnerId(), userId)) {
+        userStorage.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
+        Item oldItem = itemStorage.findById(itemId).orElseThrow(() -> new NotFoundException("Item not found"));
+        if (!Objects.equals(oldItem.getOwner().getId(), userId)) {
             throw new AuthorizationException("Нельзя обновить информацию о предмете другого пользователя");
         }
         if (itemDto.getName() != null) {
@@ -40,18 +46,19 @@ public class ItemServiceImpl implements ItemService {
         if (itemDto.getAvailable() != null) {
             oldItem.setAvailable(itemDto.getAvailable());
         }
-        return ItemMapper.mapItemToItemDto(itemStorage.updateItem(oldItem));
+        return ItemMapper.mapItemToItemDto(itemStorage.save(oldItem));
     }
 
     @Override
     public ItemDto getItemById(Integer itemId) {
-        return ItemMapper.mapItemToItemDto(itemStorage.getItemById(itemId));
+        return ItemMapper.mapItemToItemDto(itemStorage.findById(itemId)
+                .orElseThrow(() -> new NotFoundException("Item not found")));
     }
 
     @Override
     public List<ItemDto> getItemsOfUser(Integer userId) {
-        userStorage.getUserById(userId);
-        return itemStorage.getItemsOfUser(userId).stream().map(ItemMapper::mapItemToItemDto).toList();
+        userStorage.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
+        return itemStorage.findByUserId(userId).stream().map(ItemMapper::mapItemToItemDto).toList();
     }
 
     @Override
@@ -59,7 +66,9 @@ public class ItemServiceImpl implements ItemService {
         if (text.isBlank()) {
             return new ArrayList<>();
         } else {
-            return itemStorage.getItemByNameOrDescription(text).stream().map(ItemMapper::mapItemToItemDto).toList();
+            return itemStorage.getItemByNameOrDescription(text.toLowerCase()).stream()
+                    .map(ItemMapper::mapItemToItemDto)
+                    .toList();
         }
     }
 }
