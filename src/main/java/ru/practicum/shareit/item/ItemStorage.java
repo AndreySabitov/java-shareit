@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface ItemStorage extends JpaRepository<Item, BigInteger> {
 
-    List<Item> findByOwnerId(Integer userId);
+    List<Item> findByOwnerId(BigInteger userId);
 
     @Query(value = "select it from Item as it " +
             "where it.available = true " +

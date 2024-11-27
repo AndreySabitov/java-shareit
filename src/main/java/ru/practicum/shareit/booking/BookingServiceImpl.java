@@ -34,7 +34,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional
-    public ResponseBookingDto addBookingRequest(BookingDto bookingDto, Integer userId) {
+    public ResponseBookingDto addBookingRequest(BookingDto bookingDto, BigInteger userId) {
         User user = userStorage.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
         Item item = itemStorage.findById(bookingDto.getItemId())
                 .orElseThrow(() -> new NotFoundException("Item not found"));
@@ -50,7 +50,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional
-    public ResponseBookingDto approveBooking(BigInteger bookingId, Integer userId, Boolean approved) {
+    public ResponseBookingDto approveBooking(BigInteger bookingId, BigInteger userId, Boolean approved) {
         Booking booking = bookingStorage.findById(bookingId)
                 .orElseThrow(() -> new NotFoundException("Booking not found"));
         if (!Objects.equals(booking.getItem().getOwner().getId(), userId)) {
@@ -66,7 +66,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public ResponseBookingDto getBooking(BigInteger bookingId, Integer userId) {
+    public ResponseBookingDto getBooking(BigInteger bookingId, BigInteger userId) {
         Booking booking = bookingStorage.findById(bookingId)
                 .orElseThrow(() -> new NotFoundException("Booking not found"));
         if (!Objects.equals(booking.getItem().getOwner().getId(), userId) &&
@@ -77,7 +77,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<ResponseBookingDto> getBookings(Integer userId, BookingState state) {
+    public List<ResponseBookingDto> getBookings(BigInteger userId, BookingState state) {
         userStorage.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
         List<Booking> bookings = switch (state) {
             case ALL -> bookingStorage.findAllByTenantId(userId);
@@ -92,7 +92,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<ResponseBookingDto> getBookingsOfAllItemsOfOwner(Integer userId, BookingState state) {
+    public List<ResponseBookingDto> getBookingsOfAllItemsOfOwner(BigInteger userId, BookingState state) {
         userStorage.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
         List<Booking> bookings = switch (state) {
             case ALL -> bookingStorage.findAllByItemOwnerId(userId);

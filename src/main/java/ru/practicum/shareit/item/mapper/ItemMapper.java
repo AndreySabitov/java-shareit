@@ -1,14 +1,9 @@
 package ru.practicum.shareit.item.mapper;
 
 import lombok.RequiredArgsConstructor;
-import ru.practicum.shareit.booking.BookingService;
-import ru.practicum.shareit.booking.BookingServiceImpl;
-import ru.practicum.shareit.booking.BookingStorage;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.User;
-
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 public final class ItemMapper {

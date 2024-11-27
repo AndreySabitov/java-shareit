@@ -8,15 +8,15 @@ import java.math.BigInteger;
 import java.util.List;
 
 public interface ItemService {
-    ItemDto addItem(ItemDto itemDto, Integer userId);
+    ItemDto addItem(ItemDto itemDto, BigInteger userId);
 
-    ItemDto updateItem(ItemDto itemDto, Integer userId, BigInteger itemId);
+    ItemDto updateItem(ItemDto itemDto, BigInteger userId, BigInteger itemId);
 
     ItemDto getItemById(BigInteger itemId);
 
-    List<ItemDto> getItemsOfUser(Integer userId);
+    List<ItemDto> getItemsOfUser(BigInteger userId);
 
     List<ItemDto> getItemByNameOrDescription(String text);
 
-    CommentDto addComment(CreateCommentDto createCommentDto, BigInteger itemId, Integer userId);
+    CommentDto addComment(CreateCommentDto createCommentDto, BigInteger itemId, BigInteger userId);
 }

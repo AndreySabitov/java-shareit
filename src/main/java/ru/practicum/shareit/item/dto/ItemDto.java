@@ -5,8 +5,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import ru.practicum.shareit.booking.dto.BookingDtoWithoutItem;
-import ru.practicum.shareit.booking.dto.ResponseBookingDto;
-import ru.practicum.shareit.item.model.Comment;
 
 import java.math.BigInteger;
 import java.util.HashSet;

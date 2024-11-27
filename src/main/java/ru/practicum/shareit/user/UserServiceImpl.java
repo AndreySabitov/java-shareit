@@ -3,12 +3,13 @@ package ru.practicum.shareit.user;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.shareit.exceptions.AuthorizationException;
 import ru.practicum.shareit.exceptions.DuplicateException;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.user.dto.UpdateUserDto;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
+
+import java.math.BigInteger;
 
 @Service
 @RequiredArgsConstructor
@@ -17,7 +18,7 @@ public class UserServiceImpl implements UserService {
     private final UserStorage userStorage;
 
     @Override
-    public UserDto getUserById(Integer userId) {
+    public UserDto getUserById(BigInteger userId) {
         return UserMapper.mapUserToUserDto(userStorage.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found")));
     }
@@ -32,7 +33,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserDto updateUser(UpdateUserDto userDto, Integer userId) {
+    public UserDto updateUser(UpdateUserDto userDto, BigInteger userId) {
         User oldUser = userStorage.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
         User user = UserMapper.mapUpdateUserDtoToUser(userDto);
         validateUser(user);
@@ -46,7 +47,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteUserById(Integer userId) {
+    public void deleteUserById(BigInteger userId) {
         userStorage.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
         userStorage.deleteById(userId);
     }

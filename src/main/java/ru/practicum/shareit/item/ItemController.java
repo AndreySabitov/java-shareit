@@ -20,12 +20,12 @@ public class ItemController {
     private final ItemService itemService;
 
     @PostMapping
-    public ItemDto addItem(@Valid @RequestBody ItemDto itemDto, @RequestHeader("X-Sharer-User-Id") Integer userId) {
+    public ItemDto addItem(@Valid @RequestBody ItemDto itemDto, @RequestHeader("X-Sharer-User-Id") BigInteger userId) {
         return itemService.addItem(itemDto, userId);
     }
 
     @PatchMapping("/{itemId}")
-    public ItemDto updateItem(@RequestBody ItemDto itemDto, @RequestHeader("X-Sharer-User-Id") Integer userId,
+    public ItemDto updateItem(@RequestBody ItemDto itemDto, @RequestHeader("X-Sharer-User-Id") BigInteger userId,
                               @PathVariable BigInteger itemId) {
         return itemService.updateItem(itemDto, userId, itemId);
     }
@@ -36,7 +36,7 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemDto> getItemsOfUser(@RequestHeader("X-Sharer-User-Id") Integer userId) {
+    public List<ItemDto> getItemsOfUser(@RequestHeader("X-Sharer-User-Id") BigInteger userId) {
         return itemService.getItemsOfUser(userId);
     }
 
@@ -47,7 +47,7 @@ public class ItemController {
 
     @PostMapping("/{itemId}/comment")
     public CommentDto addComment(@RequestBody CreateCommentDto createCommentDto, @PathVariable BigInteger itemId,
-                                 @RequestHeader("X-Sharer-User-Id") Integer userId) {
+                                 @RequestHeader("X-Sharer-User-Id") BigInteger userId) {
         log.info("Получили text = {}, itemId = {}, userId = {}", createCommentDto.getText(), itemId, userId);
         return itemService.addComment(createCommentDto, itemId, userId);
     }

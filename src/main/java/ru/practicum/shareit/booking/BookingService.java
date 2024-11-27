@@ -8,13 +8,13 @@ import java.math.BigInteger;
 import java.util.List;
 
 public interface BookingService {
-    ResponseBookingDto addBookingRequest(BookingDto bookingDto, Integer userId);
+    ResponseBookingDto addBookingRequest(BookingDto bookingDto, BigInteger userId);
 
-    ResponseBookingDto approveBooking(BigInteger bookingId, Integer userId, Boolean approved);
+    ResponseBookingDto approveBooking(BigInteger bookingId, BigInteger userId, Boolean approved);
 
-    ResponseBookingDto getBooking(BigInteger bookingId, Integer userId);
+    ResponseBookingDto getBooking(BigInteger bookingId, BigInteger userId);
 
-    List<ResponseBookingDto> getBookings(Integer userId, BookingState state);
+    List<ResponseBookingDto> getBookings(BigInteger userId, BookingState state);
 
-    List<ResponseBookingDto> getBookingsOfAllItemsOfOwner(Integer userId, BookingState state);
+    List<ResponseBookingDto> getBookingsOfAllItemsOfOwner(BigInteger userId, BookingState state);
 }

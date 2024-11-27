@@ -18,31 +18,31 @@ public class BookingController {
 
     @PostMapping
     public ResponseBookingDto addBookingRequest(@Valid @RequestBody BookingDto bookingDto,
-                                                @RequestHeader("X-Sharer-User-Id") Integer userId) {
+                                                @RequestHeader("X-Sharer-User-Id") BigInteger userId) {
         return bookingService.addBookingRequest(bookingDto, userId);
     }
 
     @PatchMapping("/{bookingId}")
     public ResponseBookingDto approveBooking(@PathVariable BigInteger bookingId,
-                                             @RequestHeader("X-Sharer-User-Id") Integer userId,
+                                             @RequestHeader("X-Sharer-User-Id") BigInteger userId,
                                              @RequestParam Boolean approved) {
         return bookingService.approveBooking(bookingId, userId, approved);
     }
 
     @GetMapping("/{bookingId}")
     public ResponseBookingDto getBooking(@PathVariable BigInteger bookingId,
-                                         @RequestHeader("X-Sharer-User-Id") Integer userId) {
+                                         @RequestHeader("X-Sharer-User-Id") BigInteger userId) {
         return bookingService.getBooking(bookingId, userId);
     }
 
     @GetMapping
-    public List<ResponseBookingDto> getBookings(@RequestHeader("X-Sharer-User-Id") Integer userId,
+    public List<ResponseBookingDto> getBookings(@RequestHeader("X-Sharer-User-Id") BigInteger userId,
                                                 @RequestParam(defaultValue = "ALL") BookingState state) {
         return bookingService.getBookings(userId, state);
     }
 
     @GetMapping("/owner")
-    public List<ResponseBookingDto> getBookingsOfItemsOfOwner(@RequestHeader("X-Sharer-User-Id") Integer userId,
+    public List<ResponseBookingDto> getBookingsOfItemsOfOwner(@RequestHeader("X-Sharer-User-Id") BigInteger userId,
                                                               @RequestParam(defaultValue = "ALL") BookingState state) {
         return bookingService.getBookingsOfAllItemsOfOwner(userId, state);
     }

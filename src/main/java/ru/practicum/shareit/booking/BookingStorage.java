@@ -9,29 +9,29 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface BookingStorage extends JpaRepository<Booking, BigInteger> {
-    List<Booking> findAllByTenantId(Integer userId);
+    List<Booking> findAllByTenantId(BigInteger userId);
 
-    List<Booking> findAllByTenantIdAndEndBefore(Integer userId, LocalDateTime dateTime);
+    List<Booking> findAllByTenantIdAndEndBefore(BigInteger userId, LocalDateTime dateTime);
 
-    List<Booking> findAllByTenantIdAndStartAfter(Integer userId, LocalDateTime dateTime);
+    List<Booking> findAllByTenantIdAndStartAfter(BigInteger userId, LocalDateTime dateTime);
 
     @Query(value = "select bk from Booking as bk where bk.tenant.id = ?1 and bk.start < ?2 and bk.end > ?2")
-    List<Booking> findAllByTenantIdAndBetweenStartAndEnd(Integer userId, LocalDateTime dateTime);
+    List<Booking> findAllByTenantIdAndBetweenStartAndEnd(BigInteger userId, LocalDateTime dateTime);
 
-    List<Booking> findAllByTenantIdAndStatus(Integer userId, BookingStatus status);
+    List<Booking> findAllByTenantIdAndStatus(BigInteger userId, BookingStatus status);
 
-    List<Booking> findAllByItemOwnerId(Integer userId);
+    List<Booking> findAllByItemOwnerId(BigInteger userId);
 
-    List<Booking> findAllByItemOwnerIdAndEndBefore(Integer userId, LocalDateTime dateTime);
+    List<Booking> findAllByItemOwnerIdAndEndBefore(BigInteger userId, LocalDateTime dateTime);
 
-    List<Booking> findAllByItemOwnerIdAndStartAfter(Integer userId, LocalDateTime dateTime);
+    List<Booking> findAllByItemOwnerIdAndStartAfter(BigInteger userId, LocalDateTime dateTime);
 
     @Query(value = "select bk from Booking as bk where bk.item.owner.id = ?1 and bk.start < ?2 and bk.end > ?2")
-    List<Booking> findAllByItemOwnerIdAndBetweenStartAndEnd(Integer userId, LocalDateTime dateTime);
+    List<Booking> findAllByItemOwnerIdAndBetweenStartAndEnd(BigInteger userId, LocalDateTime dateTime);
 
-    List<Booking> findAllByItemOwnerIdAndStatus(Integer userId, BookingStatus status);
+    List<Booking> findAllByItemOwnerIdAndStatus(BigInteger userId, BookingStatus status);
 
-    Booking findByTenantIdAndItemIdAndStatusAndEndBefore(Integer userId, BigInteger itemId,
+    Booking findByTenantIdAndItemIdAndStatusAndEndBefore(BigInteger userId, BigInteger itemId,
                                                          BookingStatus status, LocalDateTime dateTime);
 
     @Query(value = "select bk from Booking as bk " +

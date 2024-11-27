@@ -39,14 +39,14 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional
-    public ItemDto addItem(ItemDto itemDto, Integer userId) {
+    public ItemDto addItem(ItemDto itemDto, BigInteger userId) {
         User user = userStorage.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
         return ItemMapper.mapItemToItemDto(itemStorage.save(ItemMapper.mapItemDtoToItem(itemDto, user)));
     }
 
     @Override
     @Transactional
-    public ItemDto updateItem(ItemDto itemDto, Integer userId, BigInteger itemId) {
+    public ItemDto updateItem(ItemDto itemDto, BigInteger userId, BigInteger itemId) {
         userStorage.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
         Item oldItem = itemStorage.findById(itemId).orElseThrow(() -> new NotFoundException("Item not found"));
         if (!Objects.equals(oldItem.getOwner().getId(), userId)) {
@@ -73,7 +73,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> getItemsOfUser(Integer userId) {
+    public List<ItemDto> getItemsOfUser(BigInteger userId) {
         userStorage.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
         List<ItemDto> items = itemStorage.findByOwnerId(userId).stream().map(ItemMapper::mapItemToItemDto).toList();
         items.forEach(this::setFields);
@@ -93,7 +93,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional
-    public CommentDto addComment(CreateCommentDto createCommentDto, BigInteger itemId, Integer userId) {
+    public CommentDto addComment(CreateCommentDto createCommentDto, BigInteger itemId, BigInteger userId) {
         try {
             Booking booking = bookingStorage
                     .findByTenantIdAndItemIdAndStatusAndEndBefore(userId, itemId, BookingStatus.APPROVED, LocalDateTime.now());
