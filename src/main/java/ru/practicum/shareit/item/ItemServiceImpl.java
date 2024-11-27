@@ -75,7 +75,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemDto> getItemsOfUser(Integer userId) {
         userStorage.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
-        List<ItemDto> items = itemStorage.findByUserId(userId).stream().map(ItemMapper::mapItemToItemDto).toList();
+        List<ItemDto> items = itemStorage.findByOwnerId(userId).stream().map(ItemMapper::mapItemToItemDto).toList();
         items.forEach(this::setFields);
         return items;
     }
@@ -96,7 +96,7 @@ public class ItemServiceImpl implements ItemService {
     public CommentDto addComment(CreateCommentDto createCommentDto, BigInteger itemId, Integer userId) {
         try {
             Booking booking = bookingStorage
-                    .findByUserIdAndItemId(userId, itemId, LocalDateTime.now(), BookingStatus.APPROVED);
+                    .findByTenantIdAndItemIdAndStatusAndEndBefore(userId, itemId, BookingStatus.APPROVED, LocalDateTime.now());
             log.info("нашли бронирование № {}", booking.getId());
             return CommentMapper.mapToDto(commentStorage
                     .save(CommentMapper.mapToComment(createCommentDto, booking.getItem(), booking.getTenant())));

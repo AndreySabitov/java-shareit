@@ -3,6 +3,7 @@ package ru.practicum.shareit.user;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.exceptions.AuthorizationException;
 import ru.practicum.shareit.exceptions.DuplicateException;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.user.dto.UpdateUserDto;
@@ -52,7 +53,9 @@ public class UserServiceImpl implements UserService {
 
     private void validateUser(User user) {
         if (user.getEmail() != null) {
-
+            if (userStorage.existsByEmail(user.getEmail())) {
+                throw new DuplicateException("email уже используется");
+            }
         }
     }
 }

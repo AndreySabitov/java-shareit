@@ -18,6 +18,7 @@ import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserStorage;
 
 import java.math.BigInteger;
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -78,31 +79,30 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<ResponseBookingDto> getBookings(Integer userId, BookingState state) {
         userStorage.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
-        List<ResponseBookingDto> bookings = bookingStorage.findAllByTenantId(userId).stream()
-                .map(BookingMapper::mapToResponse)
-                .sorted(Comparator.comparing(ResponseBookingDto::getStart).reversed())
-                .toList();
-        if (state == BookingState.ALL) {
-            return bookings;
-        } else {
-            return bookings.stream()
-                    .filter(bookingDto -> bookingDto.getState() == state)
-                    .toList();
-        }
+        List<Booking> bookings = switch (state) {
+            case ALL -> bookingStorage.findAllByTenantId(userId);
+            case PAST -> bookingStorage.findAllByTenantIdAndEndBefore(userId, LocalDateTime.now());
+            case FUTURE -> bookingStorage.findAllByTenantIdAndStartAfter(userId, LocalDateTime.now());
+            case CURRENT -> bookingStorage.findAllByTenantIdAndBetweenStartAndEnd(userId, LocalDateTime.now());
+            case REJECTED -> bookingStorage.findAllByTenantIdAndStatus(userId, BookingStatus.REJECTED);
+            case WAITING -> bookingStorage.findAllByTenantIdAndStatus(userId, BookingStatus.WAITING);
+        };
+        return bookings.stream().sorted(Comparator.comparing(Booking::getEnd))
+                .map(BookingMapper::mapToResponse).toList();
     }
 
     @Override
     public List<ResponseBookingDto> getBookingsOfAllItemsOfOwner(Integer userId, BookingState state) {
         userStorage.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
-        List<ResponseBookingDto> bookings = bookingStorage.findAllBookingsOfItemsOfOwner(userId).stream()
-                .map(BookingMapper::mapToResponse)
-                .toList();
-        if (state == BookingState.ALL) {
-            return bookings;
-        } else {
-            return bookings.stream()
-                    .filter(bookingDto -> bookingDto.getState() == state)
-                    .toList();
-        }
+        List<Booking> bookings = switch (state) {
+            case ALL -> bookingStorage.findAllByItemOwnerId(userId);
+            case PAST -> bookingStorage.findAllByItemOwnerIdAndEndBefore(userId, LocalDateTime.now());
+            case FUTURE -> bookingStorage.findAllByItemOwnerIdAndStartAfter(userId, LocalDateTime.now());
+            case CURRENT -> bookingStorage.findAllByItemOwnerIdAndBetweenStartAndEnd(userId, LocalDateTime.now());
+            case REJECTED -> bookingStorage.findAllByItemOwnerIdAndStatus(userId, BookingStatus.REJECTED);
+            case WAITING -> bookingStorage.findAllByItemOwnerIdAndStatus(userId, BookingStatus.WAITING);
+        };
+        return bookings.stream().sorted(Comparator.comparing(Booking::getEnd))
+                .map(BookingMapper::mapToResponse).toList();
     }
 }
