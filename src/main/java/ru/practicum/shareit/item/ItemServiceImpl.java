@@ -1,16 +1,28 @@
 package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.booking.Booking;
+import ru.practicum.shareit.booking.BookingStorage;
+import ru.practicum.shareit.booking.dto.BookingDtoWithoutItem;
+import ru.practicum.shareit.booking.enums.BookingStatus;
+import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.exceptions.AuthorizationException;
 import ru.practicum.shareit.exceptions.NotFoundException;
+import ru.practicum.shareit.exceptions.ValidationException;
+import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.dto.CreateCommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.mapper.CommentMapper;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserStorage;
 
+import java.math.BigInteger;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -18,9 +30,12 @@ import java.util.Objects;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class ItemServiceImpl implements ItemService {
     private final ItemStorage itemStorage;
     private final UserStorage userStorage;
+    private final BookingStorage bookingStorage;
+    private final CommentStorage commentStorage;
 
     @Override
     @Transactional
@@ -31,7 +46,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional
-    public ItemDto updateItem(ItemDto itemDto, Integer userId, Integer itemId) {
+    public ItemDto updateItem(ItemDto itemDto, Integer userId, BigInteger itemId) {
         userStorage.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
         Item oldItem = itemStorage.findById(itemId).orElseThrow(() -> new NotFoundException("Item not found"));
         if (!Objects.equals(oldItem.getOwner().getId(), userId)) {
@@ -50,15 +65,19 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDto getItemById(Integer itemId) {
-        return ItemMapper.mapItemToItemDto(itemStorage.findById(itemId)
+    public ItemDto getItemById(BigInteger itemId) {
+        ItemDto itemDto = ItemMapper.mapItemToItemDto(itemStorage.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Item not found")));
+        setComments(itemDto);
+        return itemDto;
     }
 
     @Override
     public List<ItemDto> getItemsOfUser(Integer userId) {
         userStorage.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
-        return itemStorage.findByUserId(userId).stream().map(ItemMapper::mapItemToItemDto).toList();
+        List<ItemDto> items = itemStorage.findByUserId(userId).stream().map(ItemMapper::mapItemToItemDto).toList();
+        items.forEach(this::setFields);
+        return items;
     }
 
     @Override
@@ -70,5 +89,44 @@ public class ItemServiceImpl implements ItemService {
                     .map(ItemMapper::mapItemToItemDto)
                     .toList();
         }
+    }
+
+    @Override
+    @Transactional
+    public CommentDto addComment(CreateCommentDto createCommentDto, BigInteger itemId, Integer userId) {
+        try {
+            Booking booking = bookingStorage
+                    .findByUserIdAndItemId(userId, itemId, LocalDateTime.now(), BookingStatus.APPROVED);
+            log.info("нашли бронирование № {}", booking.getId());
+            return CommentMapper.mapToDto(commentStorage
+                    .save(CommentMapper.mapToComment(createCommentDto, booking.getItem(), booking.getTenant())));
+        } catch (Exception e) {
+            throw new ValidationException("бронирование не найдено");
+        }
+    }
+
+    private void setComments(ItemDto itemDto) {
+        itemDto.getComments().addAll(commentStorage.findAllByItemId(itemDto.getId()).stream()
+                .map(CommentMapper::mapToDto).toList());
+    }
+
+    private void setFields(ItemDto itemDto) {
+        setComments(itemDto);
+
+        BookingDtoWithoutItem lastBooking = bookingStorage
+                .findAllByItemIdBeforeTime(itemDto.getId(), LocalDateTime.now()).stream()
+                .map(BookingMapper::mapToWithoutItemDto).findFirst().orElse(null);
+        if (lastBooking == null) {
+            log.info("прошлых бронирований не найдено");
+        }
+        itemDto.setLastBooking(lastBooking);
+
+        BookingDtoWithoutItem nextBooking = bookingStorage
+                .findAllByItemIdAfterTime(itemDto.getId(), LocalDateTime.now()).stream()
+                .map(BookingMapper::mapToWithoutItemDto).findFirst().orElse(null);
+        if (nextBooking == null) {
+            log.info("будущих бронирований не найдено");
+        }
+        itemDto.setNextBooking(nextBooking);
     }
 }

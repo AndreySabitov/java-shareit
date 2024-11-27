@@ -5,23 +5,26 @@ import lombok.*;
 import ru.practicum.shareit.user.User;
 
 import java.math.BigInteger;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @Builder
 @Entity
-@Table(name = "items")
+@Table(name = "comments")
 @NoArgsConstructor
 @AllArgsConstructor
-public class Item {
+public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "item_id")
+    @Column(name = "comment_id")
     private BigInteger id;
-    private String name;
-    private String description;
+    private String text;
     @ManyToOne
-    @JoinColumn(name = "owner_id")
-    private User owner;
-    private Boolean available;
+    @JoinColumn(name = "item_id")
+    private Item item;
+    @ManyToOne
+    @JoinColumn(name = "author_id")
+    private User author;
+    private LocalDateTime created;
 }
