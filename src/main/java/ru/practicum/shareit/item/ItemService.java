@@ -4,19 +4,18 @@ import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.CreateCommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 
-import java.math.BigInteger;
 import java.util.List;
 
 public interface ItemService {
-    ItemDto addItem(ItemDto itemDto, BigInteger userId);
+    ItemDto addItem(ItemDto itemDto, Long userId);
 
-    ItemDto updateItem(ItemDto itemDto, BigInteger userId, BigInteger itemId);
+    ItemDto updateItem(ItemDto itemDto, Long userId, Long itemId);
 
-    ItemDto getItemById(BigInteger itemId);
+    ItemDto getItemById(Long itemId);
 
-    List<ItemDto> getItemsOfUser(BigInteger userId);
+    List<ItemDto> getItemsOfUser(Long userId);
 
     List<ItemDto> getItemByNameOrDescription(String text);
 
-    CommentDto addComment(CreateCommentDto createCommentDto, BigInteger itemId, BigInteger userId);
+    CommentDto addComment(CreateCommentDto createCommentDto, Long itemId, Long userId);
 }

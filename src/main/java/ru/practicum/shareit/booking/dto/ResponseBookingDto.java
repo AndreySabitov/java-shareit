@@ -7,13 +7,12 @@ import ru.practicum.shareit.booking.enums.BookingStatus;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.User;
 
-import java.math.BigInteger;
 import java.time.LocalDateTime;
 
 @Getter
 @Builder
 public class ResponseBookingDto {
-    private BigInteger id;
+    private Long id;
     private LocalDateTime start;
     private LocalDateTime end;
     private BookingState state;

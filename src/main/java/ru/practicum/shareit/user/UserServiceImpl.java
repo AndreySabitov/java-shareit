@@ -9,8 +9,6 @@ import ru.practicum.shareit.user.dto.UpdateUserDto;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
 
-import java.math.BigInteger;
-
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -18,7 +16,7 @@ public class UserServiceImpl implements UserService {
     private final UserStorage userStorage;
 
     @Override
-    public UserDto getUserById(BigInteger userId) {
+    public UserDto getUserById(Long userId) {
         return UserMapper.mapUserToUserDto(userStorage.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found")));
     }
@@ -33,7 +31,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserDto updateUser(UpdateUserDto userDto, BigInteger userId) {
+    public UserDto updateUser(UpdateUserDto userDto, Long userId) {
         User oldUser = userStorage.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
         User user = UserMapper.mapUpdateUserDtoToUser(userDto);
         validateUser(user);
@@ -47,7 +45,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteUserById(BigInteger userId) {
+    public void deleteUserById(Long userId) {
         userStorage.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
         userStorage.deleteById(userId);
     }

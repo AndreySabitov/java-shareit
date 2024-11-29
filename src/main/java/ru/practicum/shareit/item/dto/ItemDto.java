@@ -6,7 +6,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import ru.practicum.shareit.booking.dto.BookingDtoWithoutItem;
 
-import java.math.BigInteger;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -17,7 +16,7 @@ import java.util.Set;
 @NoArgsConstructor
 public class ItemDto {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private BigInteger id;
+    private Long id;
     @NotBlank
     private String name;
     @NotBlank

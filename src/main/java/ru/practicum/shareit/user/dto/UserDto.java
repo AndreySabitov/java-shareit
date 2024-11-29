@@ -8,14 +8,12 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.math.BigInteger;
-
 @Getter
 @Setter
 @Builder
 public class UserDto {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private BigInteger id;
+    private Long id;
     @NotBlank(message = "Имя не может быть пустым")
     private String name;
     @NotNull(message = "email должен быть задан")

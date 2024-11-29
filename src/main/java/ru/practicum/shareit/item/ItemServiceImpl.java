@@ -21,7 +21,6 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserStorage;
 
-import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,14 +38,14 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional
-    public ItemDto addItem(ItemDto itemDto, BigInteger userId) {
+    public ItemDto addItem(ItemDto itemDto, Long userId) {
         User user = userStorage.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
         return ItemMapper.mapItemToItemDto(itemStorage.save(ItemMapper.mapItemDtoToItem(itemDto, user)));
     }
 
     @Override
     @Transactional
-    public ItemDto updateItem(ItemDto itemDto, BigInteger userId, BigInteger itemId) {
+    public ItemDto updateItem(ItemDto itemDto, Long userId, Long itemId) {
         userStorage.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
         Item oldItem = itemStorage.findById(itemId).orElseThrow(() -> new NotFoundException("Item not found"));
         if (!Objects.equals(oldItem.getOwner().getId(), userId)) {
@@ -65,7 +64,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDto getItemById(BigInteger itemId) {
+    public ItemDto getItemById(Long itemId) {
         ItemDto itemDto = ItemMapper.mapItemToItemDto(itemStorage.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Item not found")));
         setComments(itemDto);
@@ -73,7 +72,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> getItemsOfUser(BigInteger userId) {
+    public List<ItemDto> getItemsOfUser(Long userId) {
         userStorage.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
         List<ItemDto> items = itemStorage.findByOwnerId(userId).stream().map(ItemMapper::mapItemToItemDto).toList();
         items.forEach(this::setFields);
@@ -93,10 +92,16 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional
-    public CommentDto addComment(CreateCommentDto createCommentDto, BigInteger itemId, BigInteger userId) {
+    public CommentDto addComment(CreateCommentDto createCommentDto, Long itemId, Long userId) {
+        if (!itemStorage.existsById(itemId)) {
+            throw new NotFoundException("Вещь с таким id не найдена");
+        }
+        if (!userStorage.existsById(userId)) {
+            throw new NotFoundException("Пользователь с таким id не найден");
+        }
         try {
-            Booking booking = bookingStorage
-                    .findByTenantIdAndItemIdAndStatusAndEndBefore(userId, itemId, BookingStatus.APPROVED, LocalDateTime.now());
+            Booking booking = bookingStorage.findByTenantIdAndItemIdAndStatusAndEndBefore(userId, itemId,
+                    BookingStatus.APPROVED, LocalDateTime.now());
             log.info("нашли бронирование № {}", booking.getId());
             return CommentMapper.mapToDto(commentStorage
                     .save(CommentMapper.mapToComment(createCommentDto, booking.getItem(), booking.getTenant())));

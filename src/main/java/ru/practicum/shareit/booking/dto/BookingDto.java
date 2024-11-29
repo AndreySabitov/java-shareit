@@ -6,7 +6,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.math.BigInteger;
 import java.time.LocalDateTime;
 
 @Getter
@@ -19,5 +18,5 @@ public class BookingDto {
     @Future
     private LocalDateTime end;
     @NotNull
-    private BigInteger itemId;
+    private Long itemId;
 }

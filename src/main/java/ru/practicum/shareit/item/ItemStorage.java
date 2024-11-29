@@ -4,12 +4,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import ru.practicum.shareit.item.model.Item;
 
-import java.math.BigInteger;
 import java.util.List;
 
-public interface ItemStorage extends JpaRepository<Item, BigInteger> {
+public interface ItemStorage extends JpaRepository<Item, Long> {
 
-    List<Item> findByOwnerId(BigInteger userId);
+    List<Item> findByOwnerId(Long userId);
 
     @Query(value = "select it from Item as it " +
             "where it.available = true " +

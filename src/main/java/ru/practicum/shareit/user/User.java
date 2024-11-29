@@ -3,8 +3,6 @@ package ru.practicum.shareit.user;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.math.BigInteger;
-
 @Getter
 @Setter
 @Builder
@@ -16,7 +14,7 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
-    private BigInteger id;
+    private Long id;
     private String name;
     private String email;
 }

@@ -2,6 +2,7 @@ package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -17,9 +18,7 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserStorage;
 
-import java.math.BigInteger;
 import java.time.LocalDateTime;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -34,7 +33,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional
-    public ResponseBookingDto addBookingRequest(BookingDto bookingDto, BigInteger userId) {
+    public ResponseBookingDto addBookingRequest(BookingDto bookingDto, Long userId) {
         User user = userStorage.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
         Item item = itemStorage.findById(bookingDto.getItemId())
                 .orElseThrow(() -> new NotFoundException("Item not found"));
@@ -50,9 +49,12 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional
-    public ResponseBookingDto approveBooking(BigInteger bookingId, BigInteger userId, Boolean approved) {
+    public ResponseBookingDto approveBooking(Long bookingId, Long userId, Boolean approved) {
         Booking booking = bookingStorage.findById(bookingId)
                 .orElseThrow(() -> new NotFoundException("Booking not found"));
+        if (booking.getStatus() != BookingStatus.WAITING) {
+            throw new ValidationException("подтвердить можно только бронирование со статусом WAITING");
+        }
         if (!Objects.equals(booking.getItem().getOwner().getId(), userId)) {
             throw new AuthorizationException("Подтвердить бронирование может только хозяин вещи");
         }
@@ -66,7 +68,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public ResponseBookingDto getBooking(BigInteger bookingId, BigInteger userId) {
+    public ResponseBookingDto getBooking(Long bookingId, Long userId) {
         Booking booking = bookingStorage.findById(bookingId)
                 .orElseThrow(() -> new NotFoundException("Booking not found"));
         if (!Objects.equals(booking.getItem().getOwner().getId(), userId) &&
@@ -77,32 +79,34 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<ResponseBookingDto> getBookings(BigInteger userId, BookingState state) {
+    public List<ResponseBookingDto> getBookings(Long userId, BookingState state) {
+        Sort newestFirst = Sort.by(Sort.Direction.DESC, "start");
         userStorage.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
         List<Booking> bookings = switch (state) {
-            case ALL -> bookingStorage.findAllByTenantId(userId);
-            case PAST -> bookingStorage.findAllByTenantIdAndEndBefore(userId, LocalDateTime.now());
-            case FUTURE -> bookingStorage.findAllByTenantIdAndStartAfter(userId, LocalDateTime.now());
-            case CURRENT -> bookingStorage.findAllByTenantIdAndBetweenStartAndEnd(userId, LocalDateTime.now());
-            case REJECTED -> bookingStorage.findAllByTenantIdAndStatus(userId, BookingStatus.REJECTED);
-            case WAITING -> bookingStorage.findAllByTenantIdAndStatus(userId, BookingStatus.WAITING);
+            case ALL -> bookingStorage.findAllByTenantId(userId, newestFirst);
+            case PAST -> bookingStorage.findAllByTenantIdAndEndBefore(userId, LocalDateTime.now(), newestFirst);
+            case FUTURE -> bookingStorage.findAllByTenantIdAndStartAfter(userId, LocalDateTime.now(), newestFirst);
+            case CURRENT ->
+                    bookingStorage.findAllByTenantIdAndBetweenStartAndEnd(userId, LocalDateTime.now(), newestFirst);
+            case REJECTED -> bookingStorage.findAllByTenantIdAndStatus(userId, BookingStatus.REJECTED, newestFirst);
+            case WAITING -> bookingStorage.findAllByTenantIdAndStatus(userId, BookingStatus.WAITING, newestFirst);
         };
-        return bookings.stream().sorted(Comparator.comparing(Booking::getEnd))
-                .map(BookingMapper::mapToResponse).toList();
+        return bookings.stream().map(BookingMapper::mapToResponse).toList();
     }
 
     @Override
-    public List<ResponseBookingDto> getBookingsOfAllItemsOfOwner(BigInteger userId, BookingState state) {
+    public List<ResponseBookingDto> getBookingsOfAllItemsOfOwner(Long userId, BookingState state) {
+        Sort newestFirst = Sort.by(Sort.Direction.DESC, "start");
         userStorage.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
         List<Booking> bookings = switch (state) {
-            case ALL -> bookingStorage.findAllByItemOwnerId(userId);
-            case PAST -> bookingStorage.findAllByItemOwnerIdAndEndBefore(userId, LocalDateTime.now());
-            case FUTURE -> bookingStorage.findAllByItemOwnerIdAndStartAfter(userId, LocalDateTime.now());
-            case CURRENT -> bookingStorage.findAllByItemOwnerIdAndBetweenStartAndEnd(userId, LocalDateTime.now());
-            case REJECTED -> bookingStorage.findAllByItemOwnerIdAndStatus(userId, BookingStatus.REJECTED);
-            case WAITING -> bookingStorage.findAllByItemOwnerIdAndStatus(userId, BookingStatus.WAITING);
+            case ALL -> bookingStorage.findAllByItemOwnerId(userId, newestFirst);
+            case PAST -> bookingStorage.findAllByItemOwnerIdAndEndBefore(userId, LocalDateTime.now(), newestFirst);
+            case FUTURE -> bookingStorage.findAllByItemOwnerIdAndStartAfter(userId, LocalDateTime.now(), newestFirst);
+            case CURRENT ->
+                    bookingStorage.findAllByItemOwnerIdAndBetweenStartAndEnd(userId, LocalDateTime.now(), newestFirst);
+            case REJECTED -> bookingStorage.findAllByItemOwnerIdAndStatus(userId, BookingStatus.REJECTED, newestFirst);
+            case WAITING -> bookingStorage.findAllByItemOwnerIdAndStatus(userId, BookingStatus.WAITING, newestFirst);
         };
-        return bookings.stream().sorted(Comparator.comparing(Booking::getEnd))
-                .map(BookingMapper::mapToResponse).toList();
+        return bookings.stream().map(BookingMapper::mapToResponse).toList();
     }
 }

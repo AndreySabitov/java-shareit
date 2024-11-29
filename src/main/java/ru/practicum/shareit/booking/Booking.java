@@ -6,7 +6,6 @@ import ru.practicum.shareit.booking.enums.BookingStatus;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.User;
 
-import java.math.BigInteger;
 import java.time.LocalDateTime;
 
 @Getter
@@ -20,7 +19,7 @@ public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "booking_id")
-    private BigInteger id;
+    private Long id;
     @Column(name = "start_date")
     private LocalDateTime start;
     @Column(name = "end_date")

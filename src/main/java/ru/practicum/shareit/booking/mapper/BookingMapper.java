@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking.mapper;
 
+import lombok.experimental.UtilityClass;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoWithoutItem;
@@ -11,8 +12,9 @@ import ru.practicum.shareit.user.User;
 
 import java.time.LocalDateTime;
 
+@UtilityClass
 public final class BookingMapper {
-    public static Booking mapToBooking(BookingDto bookingDto, User user, Item item, BookingStatus status) {
+    public Booking mapToBooking(BookingDto bookingDto, User user, Item item, BookingStatus status) {
         return Booking.builder()
                 .start(bookingDto.getStart())
                 .end(bookingDto.getEnd())
@@ -22,7 +24,7 @@ public final class BookingMapper {
                 .build();
     }
 
-    public static ResponseBookingDto mapToResponse(Booking booking) {
+    public ResponseBookingDto mapToResponse(Booking booking) {
         return ResponseBookingDto.builder()
                 .id(booking.getId())
                 .start(booking.getStart())
@@ -34,7 +36,7 @@ public final class BookingMapper {
                 .build();
     }
 
-    public static BookingDtoWithoutItem mapToWithoutItemDto(Booking booking) {
+    public BookingDtoWithoutItem mapToWithoutItemDto(Booking booking) {
         return BookingDtoWithoutItem.builder()
                 .id(booking.getId())
                 .start(booking.getStart())
@@ -45,7 +47,7 @@ public final class BookingMapper {
                 .build();
     }
 
-    private static BookingState calcState(Booking booking) {
+    private BookingState calcState(Booking booking) {
         BookingStatus status = booking.getStatus();
         LocalDateTime currentDate = LocalDateTime.now();
         if (status == BookingStatus.REJECTED) {

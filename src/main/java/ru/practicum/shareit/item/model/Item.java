@@ -4,8 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import ru.practicum.shareit.user.User;
 
-import java.math.BigInteger;
-
 @Getter
 @Setter
 @Builder
@@ -17,7 +15,7 @@ public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "item_id")
-    private BigInteger id;
+    private Long id;
     private String name;
     private String description;
     @ManyToOne
