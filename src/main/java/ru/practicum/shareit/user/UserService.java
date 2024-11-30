@@ -4,11 +4,11 @@ import ru.practicum.shareit.user.dto.UpdateUserDto;
 import ru.practicum.shareit.user.dto.UserDto;
 
 public interface UserService {
-    UserDto getUserById(Integer userId);
+    UserDto getUserById(Long userId);
 
     UserDto createUser(UserDto userDto);
 
-    UserDto updateUser(UpdateUserDto userDto, Integer userId);
+    UserDto updateUser(UpdateUserDto userDto, Long userId);
 
-    void deleteUserById(Integer userId);
+    void deleteUserById(Long userId);
 }
