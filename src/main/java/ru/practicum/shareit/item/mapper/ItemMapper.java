@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item.mapper;
 
 import lombok.experimental.UtilityClass;
+import ru.practicum.shareit.item.dto.CreateItemDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.User;
@@ -8,7 +9,7 @@ import ru.practicum.shareit.user.User;
 @UtilityClass
 public final class ItemMapper {
 
-    public Item mapItemDtoToItem(ItemDto itemDto, User user) {
+    public Item mapCreateDtoToItem(CreateItemDto itemDto, User user) {
         return Item.builder()
                 .name(itemDto.getName())
                 .description(itemDto.getDescription())

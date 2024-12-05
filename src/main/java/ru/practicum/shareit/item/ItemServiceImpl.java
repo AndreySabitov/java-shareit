@@ -14,10 +14,15 @@ import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.CreateCommentDto;
+import ru.practicum.shareit.item.dto.CreateItemDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.CommentMapper;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.ItemRequestStorage;
+import ru.practicum.shareit.request.ResponseToRequestStorage;
+import ru.practicum.shareit.request.mapper.ResponseMapper;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserStorage;
 
@@ -35,12 +40,21 @@ public class ItemServiceImpl implements ItemService {
     private final UserStorage userStorage;
     private final BookingStorage bookingStorage;
     private final CommentStorage commentStorage;
+    private final ItemRequestStorage requestStorage;
+    private final ResponseToRequestStorage responseStorage;
 
     @Override
     @Transactional
-    public ItemDto addItem(ItemDto itemDto, Long userId) {
+    public ItemDto addItem(CreateItemDto itemDto, Long userId) {
         User user = userStorage.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
-        return ItemMapper.mapItemToItemDto(itemStorage.save(ItemMapper.mapItemDtoToItem(itemDto, user)));
+        Item item = itemStorage.save(ItemMapper.mapCreateDtoToItem(itemDto, user));
+        if (itemDto.getRequestId() != null) {
+            ItemRequest request = requestStorage.findById(itemDto.getRequestId())
+                    .orElseThrow(() -> new NotFoundException("Request not found"));
+
+            responseStorage.save(ResponseMapper.mapToResponse(request, item, user));
+        }
+        return ItemMapper.mapItemToItemDto(item);
     }
 
     @Override
