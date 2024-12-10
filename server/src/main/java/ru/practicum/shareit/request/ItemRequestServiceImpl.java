@@ -68,7 +68,6 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     private void setResponses(ItemRequestDto requestDto) {
         Set<ResponseDto> responses = responseStorage.findAllByItemRequestId(requestDto.getId()).stream()
                 .map(ResponseMapper::mapToDto).collect(Collectors.toSet());
-        log.info("получили список ответов {}", responses);
         requestDto.getItems().addAll(responses);
     }
 }

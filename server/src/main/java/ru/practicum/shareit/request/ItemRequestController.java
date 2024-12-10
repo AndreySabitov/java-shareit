@@ -18,7 +18,6 @@ public class ItemRequestController {
     @PostMapping
     public ItemRequestDto addRequest(@RequestBody CreateRequestDto createRequestDto,
                                      @RequestHeader("X-Sharer-User-Id") Long userId) {
-        log.info("добавляем новый запрос");
         return itemRequestService.addRequest(createRequestDto, userId);
     }
 

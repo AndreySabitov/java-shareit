@@ -26,7 +26,6 @@ public class BookingController {
     public ResponseBookingDto approveBooking(@PathVariable Long bookingId,
                                              @RequestHeader("X-Sharer-User-Id") Long userId,
                                              @RequestParam Boolean approved) {
-        log.info("Сервер получил запрос на подтверждение бронирования");
         return bookingService.approveBooking(bookingId, userId, approved);
     }
 

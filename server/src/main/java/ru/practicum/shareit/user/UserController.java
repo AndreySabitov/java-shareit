@@ -20,7 +20,6 @@ public class UserController {
 
     @PostMapping
     public UserDto createUser(@RequestBody UserDto userDto) {
-        log.info("поступил запрос на создание нового пользователя");
         return userService.createUser(userDto);
     }
 
