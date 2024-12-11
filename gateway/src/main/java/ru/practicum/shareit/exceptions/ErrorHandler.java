@@ -10,32 +10,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class ErrorHandler {
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleNotFound(final NotFoundException e) {
-        return new ErrorResponse(e.getMessage());
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleValidation(final ValidationException e) {
-        return new ErrorResponse(e.getMessage());
-    }
-
-    @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidation(final MethodArgumentNotValidException e) {
-        return new ErrorResponse(e.getMessage());
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleDuplicateException(final DuplicateException e) {
-        return new ErrorResponse(e.getMessage());
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    public ErrorResponse handleAuthorization(final AuthorizationException e) {
         return new ErrorResponse(e.getMessage());
     }
 

@@ -1,6 +1,5 @@
 package ru.practicum.shareit.item;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -29,7 +28,7 @@ import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
@@ -51,62 +50,51 @@ class ItemServiceImplMockTest {
     @InjectMocks
     private ItemServiceImpl itemService;
 
-    private User owner;
-    private User tenant;
-    private Item item;
-    private Booking booking;
-    private Comment comment;
-    private ItemRequest request;
-    private ResponseToRequest response;
-
-    @BeforeEach
-    void init() {
-        owner = User.builder()
-                .id(1L)
-                .name("name")
-                .email("name@mail.ru")
-                .build();
-        tenant = User.builder()
-                .id(2L)
-                .name("tenantName")
-                .email("tenant@mail.ru")
-                .build();
-        item = Item.builder()
-                .id(1L)
-                .name("itemName")
-                .description("description")
-                .available(true)
-                .owner(owner)
-                .build();
-        booking = Booking.builder()
-                .item(item)
-                .tenant(tenant)
-                .start(LocalDateTime.now().minusDays(2))
-                .end(LocalDateTime.now().minusDays(1))
-                .status(BookingStatus.APPROVED)
-                .id(1L)
-                .build();
-        comment = Comment.builder()
-                .created(LocalDateTime.now())
-                .item(item)
-                .text("Text")
-                .author(tenant)
-                .id(1L)
-                .build();
-        request = ItemRequest.builder()
-                .creator(tenant)
-                .description("description")
-                .created(LocalDateTime.now())
-                .id(1L)
-                .build();
-        response = ResponseToRequest.builder()
-                .itemRequest(request)
-                .owner(owner)
-                .name("name")
-                .item(item)
-                .id(1L)
-                .build();
-    }
+    private User owner = User.builder()
+            .id(1L)
+            .name("name")
+            .email("name@mail.ru")
+            .build();
+    private User tenant = User.builder()
+            .id(2L)
+            .name("tenantName")
+            .email("tenant@mail.ru")
+            .build();
+    private Item item = Item.builder()
+            .id(1L)
+            .name("itemName")
+            .description("description")
+            .available(true)
+            .owner(owner)
+            .build();
+    private Booking booking = Booking.builder()
+            .item(item)
+            .tenant(tenant)
+            .start(LocalDateTime.now().minusDays(2))
+            .end(LocalDateTime.now().minusDays(1))
+            .status(BookingStatus.APPROVED)
+            .id(1L)
+            .build();
+    private Comment comment = Comment.builder()
+            .created(LocalDateTime.now())
+            .item(item)
+            .text("Text")
+            .author(tenant)
+            .id(1L)
+            .build();
+    private ItemRequest request = ItemRequest.builder()
+            .creator(tenant)
+            .description("description")
+            .created(LocalDateTime.now())
+            .id(1L)
+            .build();
+    private ResponseToRequest response = ResponseToRequest.builder()
+            .itemRequest(request)
+            .owner(owner)
+            .name("name")
+            .item(item)
+            .id(1L)
+            .build();
 
     @Test
     void testCanAddComment() {

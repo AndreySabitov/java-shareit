@@ -115,10 +115,9 @@ public class ItemServiceImpl implements ItemService {
             throw new NotFoundException("Пользователь с таким id не найден");
         }
         try {
-            ZoneId zid = ZoneId.of("Asia/Yekaterinburg");
-            log.info("в системе сейчас {}", LocalDateTime.now(zid));
+            log.info("в системе сейчас {}", LocalDateTime.now());
             Booking booking = bookingStorage.findByTenantIdAndItemIdAndStatusAndEndBefore(userId, itemId,
-                    BookingStatus.APPROVED, LocalDateTime.now(zid));
+                    BookingStatus.APPROVED, LocalDateTime.now());
             log.info("нашли бронирование № {}", booking.getId());
             return CommentMapper.mapToDto(commentStorage
                     .save(CommentMapper.mapToComment(createCommentDto, booking.getItem(), booking.getTenant())));
