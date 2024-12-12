@@ -7,6 +7,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Sort;
 import ru.practicum.shareit.exceptions.NotFoundException;
+import ru.practicum.shareit.item.ItemStorage;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.dto.CreateRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.mapper.ItemRequestMapper;
@@ -32,7 +34,7 @@ class ItemRequestServiceImplTest {
     @Mock
     private UserStorage userStorage;
     @Mock
-    private ResponseToRequestStorage responseStorage;
+    private ItemStorage itemStorage;
     @InjectMocks
     private ItemRequestServiceImpl requestService;
 
@@ -102,6 +104,37 @@ class ItemRequestServiceImplTest {
 
         assertThat(requestDtos.size(), equalTo(requestDtos1.size()));
         assertThat(requestDtos.getFirst().getId(), equalTo(requestDtos1.getFirst().getId()));
+    }
+
+    @Test
+    void testCanGetAllRequestsByCreatorWithResponses() {
+        Sort newestFirst = Sort.by(Sort.Direction.DESC, "created");
+        List<ItemRequest> requests = List.of(itemRequest);
+        Item item1 = Item.builder()
+                .id(1L)
+                .name("itemName1")
+                .request(itemRequest)
+                .owner(user)
+                .available(true)
+                .description("description1")
+                .build();
+        Item item2 = Item.builder()
+                .id(2L)
+                .name("itemName2")
+                .request(itemRequest)
+                .owner(user)
+                .available(true)
+                .description("description2")
+                .build();
+
+        when(userStorage.existsById(any())).thenReturn(true);
+        when(requestStorage.findAllByCreatorId(user.getId(), newestFirst)).thenReturn(requests);
+        when(itemStorage.findAllByRequestIdIn(anyList()))
+                .thenReturn(List.of(item1, item2));
+
+        List<ItemRequestDto> requestDtos = requestService.getAllByUser(user.getId());
+
+        assertThat(requestDtos.getFirst().getItems().size(), equalTo(2));
     }
 
     @Test

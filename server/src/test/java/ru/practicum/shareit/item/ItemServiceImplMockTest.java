@@ -13,13 +13,12 @@ import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.CreateCommentDto;
 import ru.practicum.shareit.item.dto.CreateItemDto;
+import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.CommentMapper;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.ItemRequestStorage;
-import ru.practicum.shareit.request.ResponseToRequestStorage;
 import ru.practicum.shareit.request.model.ItemRequest;
-import ru.practicum.shareit.request.model.ResponseToRequest;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserStorage;
 
@@ -31,7 +30,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class ItemServiceImplMockTest {
@@ -45,8 +44,6 @@ class ItemServiceImplMockTest {
     private CommentStorage commentStorage;
     @Mock
     private ItemRequestStorage requestStorage;
-    @Mock
-    private ResponseToRequestStorage responseStorage;
     @InjectMocks
     private ItemServiceImpl itemService;
 
@@ -86,13 +83,6 @@ class ItemServiceImplMockTest {
             .creator(tenant)
             .description("description")
             .created(LocalDateTime.now())
-            .id(1L)
-            .build();
-    private ResponseToRequest response = ResponseToRequest.builder()
-            .itemRequest(request)
-            .owner(owner)
-            .name("name")
-            .item(item)
             .id(1L)
             .build();
 
@@ -145,24 +135,22 @@ class ItemServiceImplMockTest {
     @Test
     void testCanAddItemWithRequestId() {
         when(userStorage.findById(anyLong())).thenReturn(Optional.of(owner));
-        when(itemStorage.save(any())).thenReturn(item);
         when(requestStorage.findById(anyLong())).thenReturn(Optional.of(request));
-        when(responseStorage.save(any())).thenReturn(response);
+        when(itemStorage.save(any())).thenReturn(item);
 
-        itemService.addItem(CreateItemDto.builder()
+        ItemDto itemDto = itemService.addItem(CreateItemDto.builder()
                 .requestId(1L)
                 .available(true)
                 .description("description")
-                .name("name")
+                .name("itemName")
                 .build(), owner.getId());
 
-        verify(responseStorage, times(1)).save(any());
+        assertThat("itemName", equalTo(itemDto.getName()));
     }
 
     @Test
     void testThrowNotFoundIfTryAddItemWithNotExistRequest() {
         when(userStorage.findById(anyLong())).thenReturn(Optional.of(owner));
-        when(itemStorage.save(any())).thenReturn(item);
         when(requestStorage.findById(anyLong())).thenReturn(Optional.empty());
 
         assertThrows(NotFoundException.class, () -> itemService.addItem(CreateItemDto.builder()

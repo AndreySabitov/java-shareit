@@ -14,4 +14,8 @@ public interface ItemStorage extends JpaRepository<Item, Long> {
             "where it.available = true " +
             "and lower(it.name) like %?1% or lower(it.description) like %?1%")
     List<Item> getItemByNameOrDescription(String text);
+
+    List<Item> findAllByRequestId(Long requestId);
+
+    List<Item> findAllByRequestIdIn(List<Long> ids);
 }
